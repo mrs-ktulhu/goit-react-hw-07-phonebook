@@ -1,29 +1,27 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addContact } from '../../Redux/contactsSlice';
-import { selectContacts } from '../../Redux/selector';
-import { nanoid } from 'nanoid';
 import { Container, FormInput, SubmitButton } from './ContactForm.styled';
 
-export default function ContactForm () {
+const ContactForm = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(selectContacts);
+  const contactsSelector = useSelector((state) => state.contacts);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
 
-    const form = event.target;
+    const form = e.target;
     const name = form.elements.name.value;
-    const number = form.elements.number.value;
+    const phone = form.elements.phone.value;
 
-    if (contacts.find(contact => contact.name === name)) {
+    if (contactsSelector.items.find(contact => contact.name === name)) {
       alert(`${name} is already in contacts.`);
       return;
     }
 
-    dispatch(addContact({ name, number }));
+    dispatch(addContact({ name, phone }));
     form.reset();
-  };
+  }, [contactsSelector.items, dispatch]);
 
   return (
     <Container>
@@ -35,19 +33,17 @@ export default function ContactForm () {
             type="text"
             placeholder="Enter name"
             name="name"
-            id={nanoid()}
             required
           />
         </FormInput>
         <br />
         <FormInput>
-          Number
+          phone
           <br />
           <input
             type="tel"
-            placeholder="Enter number"
-            name="number"
-            id={nanoid()}
+            placeholder="Enter phone"
+            name="phone"
             required
           />
         </FormInput>
@@ -57,3 +53,4 @@ export default function ContactForm () {
     </Container>
   );
 }
+export default ContactForm;

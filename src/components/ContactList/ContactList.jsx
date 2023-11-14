@@ -1,31 +1,47 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { selectContacts, selectFilter } from 'Redux/selector';
-import  ContactListItem  from './ContactListItem';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchContacts,deleteContact } from 'Redux/contactsSlice';
+import ContactListItem from './ContactListItem';
 import { ContactsList } from './ContactList.styled';
 
-  const getFilteredContacts = (contacts, filter) => {
-    const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.items);
+  const filter = useSelector(state => state.filter.value);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
+  const handleDelete = contactId => {
+    dispatch(deleteContact(contactId));
   };
 
-const ContactList = () => {
-  const contacts = useSelector(selectContacts);
-  const filter = useSelector(selectFilter);
-  const filteredContacts = getFilteredContacts(contacts, filter);
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const isFiltered = filter !== '';
+  const hasContacts = filteredContacts.length > 0;
+
   return (
-    <ContactsList>
-      {filteredContacts.map(({ id, name, number }) => (
-        <ContactListItem
-          key={id}
-          id={id}
-          text={name}
-          number={number}
-        />
-      ))}
-    </ContactsList>
+    <div>
+      {hasContacts ? (
+        <ContactsList>
+          {filteredContacts.map(contact => (
+            <ContactListItem
+              key={contact.id}
+              id={contact.id}
+              text={contact.name}
+              phone={contact.phone}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ContactsList>
+      ) : (
+        isFiltered && <p>No contacts found</p>
+      )}
+    </div>
   );
 };
 

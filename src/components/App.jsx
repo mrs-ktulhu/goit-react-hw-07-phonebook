@@ -1,18 +1,17 @@
 import { Wrap } from './App.styled';
-import { useSelector } from 'react-redux';
-import { selectContacts, selectFilter } from 'Redux/selector';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchContacts } from 'Redux/contactsSlice';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 
-export default function App() {
+const App = () => {
+  const dispatch = useDispatch();
 
-  const contacts = useSelector(selectContacts);
-  const filter = useSelector(selectFilter)
-
-  const filterContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
     <Wrap>
@@ -21,7 +20,8 @@ export default function App() {
 
       <h2>Contacts</h2>
       <Filter />
-      <ContactList contacts={filterContacts}/>
+      <ContactList/>
     </Wrap>
   );
 }
+export default App;
